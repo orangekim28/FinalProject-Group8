@@ -13,6 +13,8 @@ df.info()
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+#%%
+# Plot for Mental Health rating for those who have HeartDisease vs. No HeartDisease
 fig, ax = plt.subplots(figsize = (13,5))
 sns.kdeplot(df[df["HeartDisease"]=='No']["MentalHealth"], alpha=0.5,shade = True, color="#4285f4", label="No HeartDisease", ax = ax)
 sns.kdeplot(df[df["HeartDisease"]=='Yes']["MentalHealth"], alpha=0.5,shade = True, color="#ea4335", label="HeartDisease", ax = ax)
@@ -21,6 +23,8 @@ ax.set_ylabel("Frequency")
 ax.legend(bbox_to_anchor=(1.02, 1), loc=2, borderaxespad=0.)
 plt.show()
 # %%
+# Plot for days a patient had physical injury during past 30 days for those who have HeartDisease vs. No HeartDisease
+
 fig, ax = plt.subplots(figsize = (13,5))
 sns.kdeplot(df[df["HeartDisease"]=='No']["PhysicalHealth"], alpha=0.5,shade = True, color="#4285f4", label="No HeartDisease", ax = ax)
 sns.kdeplot(df[df["HeartDisease"]=='Yes']["PhysicalHealth"], alpha=0.5,shade = True, color="#ea4335", label="HeartDisease", ax = ax)
@@ -31,19 +35,19 @@ plt.show()
 # %%
 #How many patients that have heart disease are smoking?
 have_heart_dis=df[df.HeartDisease =='Yes']
-sns.countplot(x = have_heart_dis.Smoking ,hue=have_heart_dis.Sex)
+sns.countplot(x = have_heart_dis.Smoking ,hue=have_heart_dis.Sex, palette =["#4285f4","#ea4335"])
 # %%
 #How many patients that have heart disease are drink alcohol?
 have_heart_dis=df[df.HeartDisease =='Yes']
-sns.countplot(x = have_heart_dis.AlcoholDrinking ,hue=have_heart_dis.Sex)
+sns.countplot(x = have_heart_dis.AlcoholDrinking ,hue=have_heart_dis.Sex, palette =["#4285f4","#ea4335"])
 # %%
 #How many patients that have heart disease have difficult walking?
 have_heart_dis=df[df.HeartDisease =='Yes']
-sns.countplot(x = have_heart_dis.DiffWalking ,hue=have_heart_dis.Sex)
+sns.countplot(x = have_heart_dis.DiffWalking ,hue=have_heart_dis.Sex, palette =["#4285f4","#ea4335"])
 # %%
 #How many patients that have heart disease do physical exercise?
 have_heart_dis=df[df.HeartDisease =='Yes']
-sns.countplot(x = have_heart_dis.PhysicalActivity ,hue=have_heart_dis.Sex)
+sns.countplot(x = have_heart_dis.PhysicalActivity ,hue=have_heart_dis.Sex, palette =["#4285f4","#ea4335"])
 # %%
 fig, ax = plt.subplots(figsize = (13,5))
 sns.kdeplot(df[df["HeartDisease"]=='No']["SleepTime"], alpha=0.5,shade = True, color="#4285f4", label="No HeartDisease", ax = ax)
