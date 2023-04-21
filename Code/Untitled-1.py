@@ -13,47 +13,74 @@ df.info()
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+# for Categorical columns:
+# - distribution of itself (by histogram)
+# - compare by heart disease (by pie, bar chart)
+# for Numerical columns:
+# - distribution of itself (by historgram, scatterplot, boxplot)
+# - compare by heart disease (by stacked histogram)
+
 #%%
 # Plot for Mental Health rating for those who have HeartDisease vs. No HeartDisease
-fig, ax = plt.subplots(figsize = (13,5))
-sns.kdeplot(df[df["HeartDisease"]=='No']["MentalHealth"], alpha=0.5,shade = True, color="#4285f4", label="No HeartDisease", ax = ax)
-sns.kdeplot(df[df["HeartDisease"]=='Yes']["MentalHealth"], alpha=0.5,shade = True, color="#ea4335", label="HeartDisease", ax = ax)
-ax.set_xlabel("MentalHealth")
-ax.set_ylabel("Frequency")
-ax.legend(bbox_to_anchor=(1.02, 1), loc=2, borderaxespad=0.)
+
+plt.bar(x='MentalHealth', bins ='auto', alpha=0.5 , edgecolor='black', linewidth=1)
 plt.show()
+sns.boxplot(x='MentalHealth', data=df)
+plt.show()
+
+sns.histplot(df, x = 'MentalHealth', hue='HeartDisease', bins=15,  multiple ='stack', kde=True)
+plt.show()
+
 # %%
 # Plot for days a patient had physical injury during past 30 days for those who have HeartDisease vs. No HeartDisease
+sns.boxplot(x='PhysicalHealth', data=df)
+plt.show()
 
-fig, ax = plt.subplots(figsize = (13,5))
-sns.kdeplot(df[df["HeartDisease"]=='No']["PhysicalHealth"], alpha=0.5,shade = True, color="#4285f4", label="No HeartDisease", ax = ax)
-sns.kdeplot(df[df["HeartDisease"]=='Yes']["PhysicalHealth"], alpha=0.5,shade = True, color="#ea4335", label="HeartDisease", ax = ax)
-ax.set_xlabel("PhysicalHealth")
-ax.set_ylabel("Frequency")
-ax.legend(bbox_to_anchor=(1.02, 1), loc=2, borderaxespad=0.)
+sns.histplot(df, x = 'PhysicalHealth', hue='HeartDisease', bins=15,  multiple ='stack', kde=True)
+plt.show()
+
+# %%
+# Plot for days a patient had physical injury during past 30 days for those who have HeartDisease vs. No HeartDisease
+sns.boxplot(x='SleepTime', data=df)
+plt.show()
+
+sns.histplot(df, x = 'SleepTime', hue='HeartDisease', bins=15,  multiple ='stack', kde=True)
 plt.show()
 # %%
-#How many patients that have heart disease are smoking?
-have_heart_dis=df[df.HeartDisease =='Yes']
-sns.countplot(x = have_heart_dis.Smoking ,hue=have_heart_dis.Sex, palette =["#4285f4","#ea4335"])
-# %%
-#How many patients that have heart disease are drink alcohol?
-have_heart_dis=df[df.HeartDisease =='Yes']
-sns.countplot(x = have_heart_dis.AlcoholDrinking ,hue=have_heart_dis.Sex, palette =["#4285f4","#ea4335"])
-# %%
-#How many patients that have heart disease have difficult walking?
-have_heart_dis=df[df.HeartDisease =='Yes']
-sns.countplot(x = have_heart_dis.DiffWalking ,hue=have_heart_dis.Sex, palette =["#4285f4","#ea4335"])
-# %%
-#How many patients that have heart disease do physical exercise?
-have_heart_dis=df[df.HeartDisease =='Yes']
-sns.countplot(x = have_heart_dis.PhysicalActivity ,hue=have_heart_dis.Sex, palette =["#4285f4","#ea4335"])
-# %%
-fig, ax = plt.subplots(figsize = (13,5))
-sns.kdeplot(df[df["HeartDisease"]=='No']["SleepTime"], alpha=0.5,shade = True, color="#4285f4", label="No HeartDisease", ax = ax)
-sns.kdeplot(df[df["HeartDisease"]=='Yes']["SleepTime"], alpha=0.5,shade = True, color="#ea4335", label="HeartDisease", ax = ax)
-ax.set_xlabel("SleepTime")
-ax.set_ylabel("Frequency")
-ax.legend(bbox_to_anchor=(1.02, 1), loc=2, borderaxespad=0.)
+#Categorical Variables -- Smoking
+sns.countplot(x=df["Smoking"])
+plt.xlabel('Smoking')
+plt.ylabel('Count')
 plt.show()
+
+plt.pie(df.Smoking.value_counts(), labels=df.Smoking.value_counts().index,autopct='%.0f%%')
+plt.legend(title='Smoking')
+plt.show()
+sns.countplot(x = df.HeartDisease ,hue=df.Smoking)
+plt.show()
+
 # %%
+#Categorical Variables -- Alcohol Drinking
+sns.countplot(x=df["AlcoholDrinking"])
+plt.xlabel('Smoking')
+plt.ylabel('Count')
+plt.show()
+
+sns.countplot(x = df.HeartDisease ,hue=df.AlcoholDrinking)
+# %%
+#Categorical Variables -- Difficult Walking
+sns.countplot(x=df["DiffWalking"])
+plt.xlabel('Smoking')
+plt.ylabel('Count')
+plt.show()
+
+sns.countplot(x = df.HeartDisease ,hue=df.DiffWalking)
+# %%
+#Categorical Variables -- Physical Activity
+sns.countplot(x=df["PhysicalActivity"])
+plt.xlabel('Smoking')
+plt.ylabel('Count')
+plt.show()
+
+sns.countplot(x = df.HeartDisease ,hue=df.PhysicalActivity)
+
