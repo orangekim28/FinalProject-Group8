@@ -1,3 +1,4 @@
+#%%
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -108,7 +109,7 @@ plt.show()
 # - heatmap
 # - pre-processing
 # - Balancing data when? * ask Amir
-# - Sampling method *
+# - Sampling method * Use random sampler function. with ratio 10. and then do feature engieering
 
 # jw = ["BMI", "Sex", "AgeCategory", "Race", "GenHealth", "HeartDisease"]
 # df_jw = df[jw]
@@ -294,7 +295,6 @@ plt.show()
 plt.pie(df.PhysicalActivity.value_counts(), labels=df.PhysicalActivity.value_counts().index,autopct='%.0f%%')
 plt.legend(title='PhysicalActivity')
 plt.show()
-
 
 sns.countplot(x = df.HeartDisease ,hue=df.PhysicalActivity)
 plt.show()
