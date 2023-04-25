@@ -23,7 +23,7 @@ import os
 
 
 #%%
-df = pd.read_csv("/Users/jiwoosuh/Documents/FinalProject-Group8/Code/heart_2020_cleaned.csv")
+df = pd.read_csv("heart_2020_cleaned.csv")
 # df = pd.read_csv("/Users/jiwoosuh/Downloads/LLCP2020.csv")
 df.info()
 print(f"Number of observations: {df.shape[0]}")
@@ -54,8 +54,6 @@ ax[1].set_title("Boxplot of BMI for Heart Disease No")
 
 # Show the plot
 plt.show()
-
-#%%
 
 
 #%%
@@ -152,8 +150,6 @@ plt.show()
 # numerical_features = list(df_jw.select_dtypes(include=['int64', 'float64']).columns)
 
 # Loop over each numerical feature
-#%%
-# Loop for histogram for categorical features
 
 
 #%%
@@ -211,4 +207,94 @@ plt.show()
 plt.figure(figsize=(10,4))
 sns.countplot(x = hdyes.GenHealth.sort_values(),hue=hdyes.Sex)
 plt.title("Gen Health for Heart Disease Yes")
+plt.show()
+
+
+#%%
+# Numerical variables -- MentalHealth
+sns.distplot(df['MentalHealth'], kde=False, bins=20, hist=True)
+plt.show()
+
+sns.boxplot(x='MentalHealth', data=df)
+plt.show()
+
+sns.histplot(df, x = 'MentalHealth', hue='HeartDisease', bins=15,  multiple ='stack', kde=True)
+plt.show()
+
+# %%
+# Numerical variables -- PhysicalHealth 
+sns.distplot(df['PhysicalHealth'], kde=False, bins=20, hist=True)
+plt.show()
+
+
+sns.boxplot(x='PhysicalHealth', data=df)
+plt.show()
+
+sns.histplot(df, x = 'PhysicalHealth', hue='HeartDisease', bins=15,  multiple ='stack', kde=True)
+plt.show()
+# %%
+# Numerical variables -- SleepTime 
+sns.distplot(df['SleepTime'], kde=False, bins=20, hist=True)
+plt.show()
+
+sns.boxplot(x='SleepTime', data=df)
+plt.show()
+
+sns.histplot(df, x = 'SleepTime', hue='HeartDisease', bins=15,  multiple ='stack', kde=True)
+plt.show()
+
+# %%
+#Categorical Variables -- Smoking
+sns.countplot(x=df["Smoking"])
+plt.xlabel('Smoking')
+plt.ylabel('Count')
+plt.show()
+
+plt.pie(df.Smoking.value_counts(), labels=df.Smoking.value_counts().index,autopct='%.0f%%')
+plt.legend(title='Smoking')
+plt.show()
+sns.countplot(x = df.HeartDisease ,hue=df.Smoking)
+plt.show()
+
+# %%
+#Categorical Variables -- Alcohol Drinking
+sns.countplot(x=df["AlcoholDrinking"])
+plt.xlabel('AlcoholDrinking')
+plt.ylabel('Count')
+plt.show()
+
+plt.pie(df.AlcoholDrinking.value_counts(), labels=df.AlcoholDrinking.value_counts().index,autopct='%.0f%%')
+plt.legend(title='AlcoholDrinking')
+plt.show()
+
+sns.countplot(x = df.HeartDisease ,hue=df.AlcoholDrinking)
+plt.show()
+
+# %%
+#Categorical Variables -- Difficult Walking
+sns.countplot(x=df["DiffWalking"])
+plt.xlabel('Smoking')
+plt.ylabel('Count')
+plt.show()
+
+plt.pie(df.DiffWalking.value_counts(), labels=df.DiffWalking.value_counts().index,autopct='%.0f%%')
+plt.legend(title='DiffWalking')
+plt.show()
+
+sns.countplot(x = df.HeartDisease ,hue=df.DiffWalking)
+plt.show()
+
+# %%
+#Categorical Variables -- Physical Activity
+sns.countplot(x=df["PhysicalActivity"])
+plt.xlabel('Smoking')
+plt.ylabel('Count')
+plt.show()
+
+plt.pie(df.PhysicalActivity.value_counts(), labels=df.PhysicalActivity.value_counts().index,autopct='%.0f%%')
+plt.legend(title='PhysicalActivity')
+plt.show()
+
+
+sns.countplot(x = df.HeartDisease ,hue=df.PhysicalActivity)
 plt.show()
