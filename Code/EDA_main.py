@@ -9,9 +9,10 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import classification_report, confusion_matrix
 import pyreadstat
+from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import KFold
 import os
 #%%
-
 # # Get the absolute path of the XPT file
 # file_path = os.path.abspath('/Users/jiwoosuh/Downloads/LLCP2020.XPT ')
 #
@@ -21,10 +22,8 @@ import os
 # # Export to CSVff
 # df.to_csv('/Users/jiwoosuh/Downloads/LLCP2020.csv', index=False)
 
-
-
 #%%
-df = pd.read_csv("heart_2020_cleaned.csv")
+df = pd.read_csv('/Users/jiwoosuh/Documents/FinalProject-Group8/Code/heart_2020_cleaned.csv')
 # df = pd.read_csv("/Users/jiwoosuh/Downloads/LLCP2020.csv")
 df.info()
 print(f"Number of observations: {df.shape[0]}")
@@ -55,7 +54,6 @@ ax[1].set_title("Boxplot of BMI for Heart Disease No")
 
 # Show the plot
 plt.show()
-
 
 #%%
 # Create a figure with two subplots
@@ -298,3 +296,67 @@ plt.show()
 
 sns.countplot(x = df.HeartDisease ,hue=df.PhysicalActivity)
 plt.show()
+
+#%%
+###### DATA IMBALANCE
+
+import pandas as pd
+from sklearn.model_selection import KFold
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+# Load the dataset
+df = pd.read_csv('/Users/jiwoosuh/Documents/FinalProject-Group8/Code/heart_2020_cleaned.csv')
+categorical_features = list(df.select_dtypes(include=['object']).columns)
+numerical_features = list(df.select_dtypes(include=['int64', 'float64']).columns)
+categorical_features.remove('HeartDisease')
+print(f"Categorical features: {categorical_features}")
+print(f"Numerical features: {numerical_features}")
+# One-hot encoding for categorical variables
+df = pd.get_dummies(df, columns=categorical_features)
+# Split into features (X) and target (y)
+X = df.drop('HeartDisease', axis=1)
+y = df['HeartDisease']
+
+#%%
+# Define models to evaluate
+models = {
+    'Logistic Regression': LogisticRegression(),
+    # 'Decision Tree': DecisionTreeClassifier(),
+    # 'Random Forest': RandomForestClassifier()
+}
+
+#%%
+# Set up K-fold cross-validation
+kfold = KFold(n_splits=5, shuffle=True, random_state=42)
+# set up the oversampler
+from imblearn.over_sampling import RandomOverSampler
+sampler = RandomOverSampler()
+
+# Loop through models and evaluate performance
+for name, model in models.items():
+    scores = []
+    for i, (train_idx, val_idx) in enumerate(kfold.split(X)):
+        # Split data into training and validation sets for this fold
+        print(f"Fold{i}")
+        # print(f"Train: index = {train_idx}")
+        # print(f"Val: index = {val_idx}")
+        X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
+        y_train, y_val = y.iloc[train_idx], y.iloc[val_idx]
+        X_train_resampled, y_train_resampled = sampler.fit_resample(X_train,y_train)
+
+        # Fit the model on the training data
+        # model.fit(X_train, y_train)
+        model.fit(X_train_resampled, y_train_resampled)
+
+        # Predict on the validation data and calculate accuracy
+        y_pred = model.predict(X_val)
+        acc = accuracy_score(y_val, y_pred)
+        print(f"accuracy for {i}: {acc}")
+        scores.append(acc)
+
+    # Print the average accuracy score for this model
+    print(f'{name}: Average accuracy score = {sum(scores) / len(scores):.2f}')
+
