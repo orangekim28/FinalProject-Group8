@@ -9,6 +9,8 @@ from sklearn.metrics import classification_report, confusion_matrix
 #%%
 df = pd.read_csv("heart_2020_cleaned.csv")
 df.info()
+
+
 # %%
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -28,7 +30,7 @@ plt.show()
 sns.boxplot(x='MentalHealth', data=df)
 plt.show()
 
-plt.scatter(x=)
+#plt.scatter()
 
 sns.histplot(df, x = 'MentalHealth', hue='HeartDisease', bins=15,  multiple ='stack', kde=True)
 plt.show()
