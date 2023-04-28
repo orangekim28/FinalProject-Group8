@@ -18,7 +18,7 @@ df = pd.read_csv('heart_2020_cleaned.csv')
 print(df.head())
 print(df.columns)
 print(df.shape)
-categorical_features=identify_nominal_columns(df)
+categorical_features = identify_nominal_columns(df)
 numerical_features = ['BMI','PhysicalHealth','MentalHealth','SleepTime']
 print(df.columns)
 print(df.info())
@@ -32,63 +32,98 @@ for col in col_df:
 # count the target variable with yes and no
 print(df['HeartDisease'].value_counts())
 
+
 #%%#################################EDA analysis#########################
-# Self-charateristic features - jiwoo
-jw = ["BMI", "Sex", "AgeCategory", "Race", "GenHealth", "HeartDisease"]
-df_jw = df[jw]
-categorical_features = list(df_jw.select_dtypes(include=['object']).columns)
-numerical_features = list(df_jw.select_dtypes(include=['int64', 'float64']).columns)
-categorical_features.remove('HeartDisease')
-print(f"Categorical features: {categorical_features}")
-print(f"Numerical features: {numerical_features}")
-#%% numerical features
-# Create a figure with two subplots
-fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+# Categorical Features
 
-# Plot the first boxplot on the first subplot
-sns.boxplot(x=df[df['HeartDisease']=='Yes']["BMI"], color="#ea4335", ax=ax[0])
-ax[0].set_title("Boxplot of BMI for Heart Disease Yes")
-
-# Plot the second boxplot on the second subplot
-sns.boxplot(x=df[df['HeartDisease']=='No']["BMI"], color='#4285f4', ax=ax[1])
-ax[1].set_title("Boxplot of BMI for Heart Disease No")
-plt.show()
-
-#%%
-# Create a figure with two subplots
-fig, ax = plt.subplots(1, 2, figsize=(10, 5))
-# Plot the first histogram on the first subplot
-sns.histplot(df[df['HeartDisease']=='Yes'], x="BMI", kde=True, color="#ea4335", ax=ax[0])
-ax[0].set_title("Histogram of BMI for Heart Disease Yes")
-# Plot the second histogram on the second subplot
-sns.histplot(df[df['HeartDisease']=='No'], x="BMI", kde=True, color='#4285f4', ax=ax[1])
-ax[1].set_title("Histogram of BMI for Heart Disease No")
-plt.show()
-
-#%%
-# Loop for histogram for categorical features
-for feature in categorical_features:
-
-    plt.pie(df[feature].value_counts(), labels=df[feature].value_counts().index, autopct='%.0f%%')
-    plt.legend(title='Segment')
-    plt.title(f"Pie chart of {feature}")
-    plt.show()
-
-    sns.countplot(x=df[feature].sort_values(), hue=df.HeartDisease)
-    plt.title(f"Histogram of {feature}")
-    plt.show()
-    # Create a figure with two subplots
-    fig, ax = plt.subplots(1, 2, figsize=(10, 5))
-    # Plot the first histogram on the first subplot
-    sns.histplot(df[df['HeartDisease']=='Yes'], x=feature, kde=True, color="#ea4335", ax=ax[0])
-    ax[0].set_title(f"Histogram of {feature} for Heart Disease Yes")
-    # Plot the second histogram on the second subplot
-    sns.histplot(df[df['HeartDisease']=='No'], x=feature, kde=True, color='#4285f4', ax=ax[1])
-    ax[1].set_title(f"Histogram of {feature} for Heart Disease No")
-
-    # Show the plot
+def univaiate(feature):
+    freq_table = pd.crosstab(index=df[feature],columns='count')
+    print(freq_table)
+    plt.figure(figsize=(15,10))
+    plt.subplot(1,2,1)
+    sns.histplot(x=feature,data=df).set(title = 'Histogram of '+feature)
+    plt.subplot(1,2,2)
+    plt.pie(df[feature].value_counts(),labels=df[feature].unique().tolist(),autopct='%1.1f%%')
+    plt.legend(loc = (1.3,1))
+    plt.title(feature)
     plt.tight_layout()
     plt.show()
+        
+for feature in categorical_features:
+    univaiate(feature)
+
+#%%
+## multivariate analysis
+if 'HeartDisease' in categorical_features:
+    categorical_features.remove('HeartDisease')
+
+Disease_feature= ['Stroke','Diabetic','Asthma','KidneyDisease','SkinCancer']
+
+def multivariate(feature):
+    plt.figure(figsize=(10,10))
+    sns.countplot(x='HeartDisease',hue = feature,data=df).set(title = feature+' vs Heart Disease')
+    plt.show()
+    
+    plt.figure(figsize=(15,10))
+    plt.subplot(1,2,1)
+    plt.pie(df[df['HeartDisease']=='Yes'][[feature]].value_counts(),labels=df[df['HeartDisease']=='Yes'][feature].unique().tolist(),autopct='%1.1f%%')
+    plt.legend(loc = (1.3,1))
+    plt.title(feature+' vs Heart Disease-yes')
+    
+    plt.subplot(1,2,2)
+    plt.pie(df[df['HeartDisease']=='No'][feature].value_counts(),labels=df[df['HeartDisease']=='No'][feature].unique().tolist(),autopct='%1.1f%%')
+    plt.legend(loc = (1.3,1))
+    plt.title(feature+' vs Heart Disease-no')
+
+    plt.tight_layout()
+    plt.show()
+    
+for feature in categorical_features:
+    multivariate(feature)
+
+# def multivariate(feature):
+#     # Create a figure with two subplots
+#     fig, ax = plt.subplots(1, 2, figsize=(12, 8))
+#     # Plot the first histogram on the first subplot
+#     sns.histplot(df[df['HeartDisease']=='Yes'], x=feature, ax=ax[0])
+#     ax[0].set_title(f"Histogram of {feature} for Heart Disease Yes")
+#     # Plot the second histogram on the second subplot
+#     sns.histplot(df[df['HeartDisease']=='No'], x=feature, ax=ax[1])
+#     ax[1].set_title(f"Histogram of {feature} for Heart Disease No")
+
+#     plt.figure(figsize=(15,10))
+#     plt.subplot(1,2,1)
+#     plt.pie(df[df['HeartDisease']=='Yes'][[feature]].value_counts(),labels=df[df['HeartDisease']=='Yes'][feature].unique().tolist(),autopct='%1.1f%%')
+#     plt.legend(loc = (1.3,1))
+#     plt.title(feature+' vs Heart Disease-Yes')
+#     plt.subplot(1,2,2)
+#     plt.pie(df[df['HeartDisease']=='No'][feature].value_counts(), labels=df[df['HeartDisease']=='No'][feature].unique().tolist(),autopct='%1.1f%%')
+#     plt.legend(loc = (1.3,1))
+#     plt.title(feature+' vs Heart Disease-No')
+
+#     # Show the plot
+#     plt.tight_layout()
+#     plt.show()
+ 
+# for feature in categorical_features:
+#     multivariate(feature)
+    
+    
+#%% Numerical Features
+
+for feature in numerical_features:
+
+    # Plot the first boxplot on the first subplot
+    sns.boxplot(x=df[feature]).set_title("Boxplot of " +feature)
+    plt.show()
+    sns.distplot(df[feature], kde=False, bins=20, hist=True)
+    plt.title("Histogram of " + feature )
+    plt.show()
+    
+    sns.histplot(df, x =df[feature], hue=df['HeartDisease'], bins=15,  multiple ='stack', kde=True)
+    plt.title("Histogram plot of " + feature + " with Heart Disease")
+    plt.show()
+
 
 #%%
 df[df['HeartDisease']=='Yes'].describe(include='object')
@@ -108,140 +143,8 @@ plt.figure(figsize=(10,4))
 sns.countplot(x = hdyes.GenHealth.sort_values(),hue=hdyes.Sex)
 plt.title("Gen Health for Heart Disease Yes")
 plt.show()
-# %% EDA analysis - categorical features - Diesease- guoshan
-## univariate analysis
-Disease_feature= ['Stroke','Diabetic','Asthma','KidneyDisease','SkinCancer']
-def univaiate(feature):
-    freq_table = pd.crosstab(index=df[feature],columns='count')
-    print(freq_table)
-    plt.figure(figsize=(15,10))
-    plt.subplot(1,2,1)
-    sns.histplot(x=feature,data=df).set(title = feature+' vs Heart Disease')
-    plt.subplot(1,2,2)
-    plt.pie(df[feature].value_counts(),labels=df[feature].unique().tolist(),autopct='%1.1f%%')
-    plt.legend(loc = (1.3,1))
-    plt.title(feature)
-    plt.tight_layout()
-    plt.show()
-    
-for feature in Disease_feature:
-    univaiate(feature)
-
-# %%
-## multivariate analysis
-def multivariate(feature):
-    plt.figure(figsize=(10,10))
-    sns.countplot(x='HeartDisease',hue = feature,data=df).set(title = feature+' vs Heart Disease')
-    plt.show()
-    
-    plt.figure(figsize=(15,10))
-    plt.subplot(1,2,1)
-    plt.pie(df[df['HeartDisease']=='Yes'][[feature]].value_counts(),labels=df[df['HeartDisease']=='Yes'][feature].unique().tolist(),autopct='%1.1f%%')
-    plt.legend(loc = (1.3,1))
-    plt.title(feature+' vs Heart Disease-yes')
-    
-    plt.subplot(1,2,2)
-    plt.pie(df[df['HeartDisease']=='No'][feature].value_counts(),labels=df[df['HeartDisease']=='No'][feature].unique().tolist(),autopct='%1.1f%%')
-    plt.legend(loc = (1.3,1))
-    plt.title(feature+' vs Heart Disease-no')
-
-    plt.tight_layout()
-    plt.show()
- 
-for feature in Disease_feature:
-    multivariate(feature)
-    
-#%%
-# MentalHealth variable
-sns.distplot(df['MentalHealth'], kde=False, bins=20, hist=True)
-plt.show()
-
-sns.boxplot(x='MentalHealth', data=df)
-plt.show()
-
-#plt.scatter()
-
-sns.histplot(df, x = 'MentalHealth', hue='HeartDisease', bins=15,  multiple ='stack', kde=True)
-plt.show()
-
-# %%
-# PhysicalHealth Variable
-sns.distplot(df['PhysicalHealth'], kde=False, bins=20, hist=True)
-plt.show()
 
 
-sns.boxplot(x='PhysicalHealth', data=df)
-plt.show()
-
-sns.histplot(df, x = 'PhysicalHealth', hue='HeartDisease', bins=15,  multiple ='stack', kde=True)
-plt.show()
-
-# %%
-# SleepTime variable
-sns.distplot(df['SleepTime'], kde=False, bins=20, hist=True)
-plt.show()
-
-
-sns.boxplot(x='SleepTime', data=df)
-plt.show()
-
-sns.histplot(df, x = 'SleepTime', hue='HeartDisease', bins=15,  multiple ='stack', kde=True)
-plt.show()
-# %%
-#Categorical Variables -- Smoking
-sns.countplot(x=df["Smoking"])
-plt.xlabel('Smoking')
-plt.ylabel('Count')
-plt.show()
-
-plt.pie(df.Smoking.value_counts(), labels=df.Smoking.value_counts().index,autopct='%.0f%%')
-plt.legend(title='Smoking')
-plt.show()
-sns.countplot(x = df.HeartDisease ,hue=df.Smoking)
-plt.show()
-
-# %%
-#Categorical Variables -- Alcohol Drinking
-sns.countplot(x=df["AlcoholDrinking"])
-plt.xlabel('AlcoholDrinking')
-plt.ylabel('Count')
-plt.show()
-
-plt.pie(df.AlcoholDrinking.value_counts(), labels=df.AlcoholDrinking.value_counts().index,autopct='%.0f%%')
-plt.legend(title='AlcoholDrinking')
-plt.show()
-
-sns.countplot(x = df.HeartDisease ,hue=df.AlcoholDrinking)
-plt.show()
-
-# %%
-#Categorical Variables -- Difficult Walking
-sns.countplot(x=df["DiffWalking"])
-plt.xlabel('Smoking')
-plt.ylabel('Count')
-plt.show()
-
-plt.pie(df.DiffWalking.value_counts(), labels=df.DiffWalking.value_counts().index,autopct='%.0f%%')
-plt.legend(title='DiffWalking')
-plt.show()
-
-sns.countplot(x = df.HeartDisease ,hue=df.DiffWalking)
-plt.show()
-
-# %%
-#Categorical Variables -- Physical Activity
-sns.countplot(x=df["PhysicalActivity"])
-plt.xlabel('Smoking')
-plt.ylabel('Count')
-plt.show()
-
-plt.pie(df.PhysicalActivity.value_counts(), labels=df.PhysicalActivity.value_counts().index,autopct='%.0f%%')
-plt.legend(title='PhysicalActivity')
-plt.show()
-
-
-sns.countplot(x = df.HeartDisease ,hue=df.PhysicalActivity)
-plt.show()
 
 # %%
 #correlation matrix
