@@ -111,6 +111,7 @@ y_pred = dt.predict(x_test)
 
 # %%
 # show the metrics of the train model not the test model
+from sklearn.metrics import balanced_accuracy_score
 print(classification_report(y_train, dt.predict(x_pca)))
 print('---------------------------------')
 # show the balanced accuracy score
@@ -122,9 +123,153 @@ print(classification_report(y_test, y_pred))
 print('---------------------------------')
 # show the balanced accuracy score
 # import balanced_accuracy_score
-from sklearn.metrics import balanced_accuracy_score
+# from sklearn.metrics import balanced_accuracy_score
 print(f"Balanced accuracy score: {balanced_accuracy_score(y_test, y_pred)}")
 
+#%%
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neural_network import MLPClassifier
+rfpca = RandomForestClassifier()
+rfpca.fit(x_pca, y_train)
+# predict the test data
+y_pred = rfpca.predict(x_test)
+
+# %%
+# show the metrics of the train model not the test model
+from sklearn.metrics import balanced_accuracy_score
+print(classification_report(y_train, rfpca.predict(x_pca)))
+print('---------------------------------')
+# show the balanced accuracy score
+# import balanced_accuracy_score
+print(f"Balanced accuracy score: {balanced_accuracy_score(y_train, rfpca.predict(x_pca))}")
+print('---------------------------------')
+
+print(classification_report(y_test, y_pred))
+print('---------------------------------')
+# show the balanced accuracy score
+# import balanced_accuracy_score
+# from sklearn.metrics import balanced_accuracy_score
+print(f"Balanced accuracy score: {balanced_accuracy_score(y_test, y_pred)}")
+
+#%%
+mlppca = MLPClassifier()
+mlppca.fit(x_pca, y_train)
+# predict the test data
+y_pred = mlppca.predict(x_test)
+
+# %%
+# show the metrics of the train model not the test model
+from sklearn.metrics import balanced_accuracy_score
+print(classification_report(y_train, mlppca.predict(x_pca)))
+print('---------------------------------')
+# show the balanced accuracy score
+# import balanced_accuracy_score
+print(f"Balanced accuracy score: {balanced_accuracy_score(y_train, mlppca.predict(x_pca))}")
+print('---------------------------------')
+
+print(classification_report(y_test, y_pred))
+print('---------------------------------')
+# show the balanced accuracy score
+# import balanced_accuracy_score
+# from sklearn.metrics import balanced_accuracy_score
+print(f"Balanced accuracy score: {balanced_accuracy_score(y_test, y_pred)}")
+
+#%%
+mlppca = MLPClassifier()
+mlppca.fit(x_pca, y_train)
+# predict the test data
+y_pred = mlppca.predict(x_test)
+
+# %%
+# show the metrics of the train model not the test model
+from sklearn.metrics import balanced_accuracy_score
+print(classification_report(y_train, mlppca.predict(x_pca)))
+print('---------------------------------')
+# show the balanced accuracy score
+# import balanced_accuracy_score
+print(f"Balanced accuracy score: {balanced_accuracy_score(y_train, mlppca.predict(x_pca))}")
+print('---------------------------------')
+
+print(classification_report(y_test, y_pred))
+print('---------------------------------')
+# show the balanced accuracy score
+# import balanced_accuracy_score
+# from sklearn.metrics import balanced_accuracy_score
+print(f"Balanced accuracy score: {balanced_accuracy_score(y_test, y_pred)}")
+
+#%%
+from sklearn.neighbors import KNeighborsClassifier
+import xgboost as xgb
+knnpca = KNeighborsClassifier()
+knnpca.fit(x_pca, y_train)
+# predict the test data
+y_pred = knnpca.predict(x_test)
+
+# %%
+# show the metrics of the train model not the test model
+from sklearn.metrics import balanced_accuracy_score
+print(classification_report(y_train, knnpca.predict(x_pca)))
+print('---------------------------------')
+# show the balanced accuracy score
+# import balanced_accuracy_score
+print(f"Balanced accuracy score: {balanced_accuracy_score(y_train, knnpca.predict(x_pca))}")
+print('---------------------------------')
+
+print(classification_report(y_test, y_pred))
+print('---------------------------------')
+# show the balanced accuracy score
+# import balanced_accuracy_score
+# from sklearn.metrics import balanced_accuracy_score
+print(f"Balanced accuracy score: {balanced_accuracy_score(y_test, y_pred)}")
+
+#%%
+xgbpca = xgb.XGBClassifier()
+xgbpca.fit(x_pca, y_train)
+# predict the test data
+y_pred = xgbpca.predict(x_test)
+
+# %%
+# show the metrics of the train model not the test model
+from sklearn.metrics import balanced_accuracy_score
+print(classification_report(y_train, xgbpca.predict(x_pca)))
+print('---------------------------------')
+# show the balanced accuracy score
+# import balanced_accuracy_score
+print(f"Balanced accuracy score: {balanced_accuracy_score(y_train, xgbpca.predict(x_pca))}")
+print('---------------------------------')
+
+print(classification_report(y_test, y_pred))
+print('---------------------------------')
+# show the balanced accuracy score
+# import balanced_accuracy_score
+# from sklearn.metrics import balanced_accuracy_score
+print(f"Balanced accuracy score: {balanced_accuracy_score(y_test, y_pred)}")
+
+
+#%%
+svmpca = SVC()
+svmpca.fit(x_pca, y_train)
+# predict the test data
+y_pred = svmpca.predict(x_test)
+
+# %%
+# show the metrics of the train model not the test model
+from sklearn.metrics import balanced_accuracy_score
+print(classification_report(y_train, svmpca.predict(x_pca)))
+print('---------------------------------')
+# show the balanced accuracy score
+# import balanced_accuracy_score
+print(f"Balanced accuracy score: {balanced_accuracy_score(y_train, svmpca.predict(x_pca))}")
+print('---------------------------------')
+
+print(classification_report(y_test, y_pred))
+print('---------------------------------')
+# show the balanced accuracy score
+# import balanced_accuracy_score
+# from sklearn.metrics import balanced_accuracy_score
+print(f"Balanced accuracy score: {balanced_accuracy_score(y_test, y_pred)}")
 
 # %% 
 # classifiers = {
