@@ -76,7 +76,7 @@ def multivariate(feature):
     
 for feature in categorical_features:
     multivariate(feature)
-
+#%%
 hdyes = df[df['HeartDisease']=='Yes']
 
 plt.figure(figsize=(10,4))

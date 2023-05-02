@@ -316,19 +316,19 @@ print(y_test.shape)
 
 #%%
 # imbalance info
-from imblearn.over_sampling import RandomOverSampler
-print("Before Oversampling, counts of label '1': {}".format(sum(y_train.values == 1)))
-print("Before Oversampling, counts of label '0': {} \n".format(sum(y_train.values == 0)))
+from imblearn.under_sampling import RandomUnderSampler
+print("Before Undersampling, counts of label '1': {}".format(sum(y_train.values == 1)))
+print("Before Undersampling, counts of label '0': {} \n".format(sum(y_train.values == 0)))
 
-ros = RandomOverSampler(random_state=42)
-X_train_res, y_train_res = ros.fit_resample(x_train, y_train)
+rus = RandomUnderSampler(random_state=42)
+X_train_res, y_train_res = rus.fit_resample(x_train, y_train)
 # X_train_res2, y_train_res2 = rus.fit_resample(x_train, y_train)
 
-print('After Oversampling, the shape of train_X: {}'.format(X_train_res.shape))
-print('After Oversampling, the shape of train_y: {} \n'.format(y_train_res.shape))
+print('After Undersampling, the shape of train_X: {}'.format(X_train_res.shape))
+print('After Undersampling, the shape of train_y: {} \n'.format(y_train_res.shape))
 
-print("After Oversampling, counts of label '1': {}".format(sum(y_train_res.values == 1)))
-print("After Oversampling, counts of label '0': {}".format(sum(y_train_res.values == 0)))
+print("After Undersampling, counts of label '1': {}".format(sum(y_train_res.values == 1)))
+print("After Undersampling, counts of label '0': {}".format(sum(y_train_res.values == 0)))
 #%%
 # distribution of target variable after oversampling
 sns.countplot(x=y_train_res['HeartDisease'])
@@ -342,38 +342,41 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from imblearn.over_sampling import RandomOverSampler
+from imblearn.under_sampling import RandomUnderSampler
 from sklearn.feature_selection import RFECV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score,roc_curve,f1_score
+from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score,roc_curve,f1_score,precision_recall_curve
 #%%
 classifiers = {
-    # 'Decision Tree': DecisionTreeClassifier(),
+    'Decision Tree': DecisionTreeClassifier(),
     'Random Forest': RandomForestClassifier(),
-    #'Logistic Regression': LogisticRegression(),
+    'Logistic Regression': LogisticRegression()
     # 'SVC': SVC(kernel='linear')
-} 
+}
 
 for clf_name, clf in classifiers.items():
     # train pipeline with oversampling
     train_pipeline = Pipeline([
-        ('sampler', RandomOverSampler()),
+        ('sampler', RandomUnderSampler()),
         ('feature_selector', RFECV(estimator=clf, step=1, cv=StratifiedKFold(n_splits=5), scoring='f1')),
         ('classifier', clf)
     ])
     train_pipeline.fit(x_train, y_train)
-    
+
     print(f"Classifier: {clf_name}")
     print(f"Selected features: {list(x_train.columns[train_pipeline.named_steps['feature_selector'].get_support()])}")
     print(f"Number of features selected: {train_pipeline.named_steps['feature_selector'].n_features_}")
-    print(f"Cross-validation score: {train_pipeline.named_steps['feature_selector'].grid_scores_[train_pipeline.named_steps['feature_selector'].n_features_ - 1]}")
+    # print(
+    #     f"Cross-validation score: {train_pipeline.named_steps['feature_selector'].grid_scores_[train_pipeline.named_steps['feature_selector'].n_features_ - 1]}")
     plt.figure()
     plt.xlabel("Number of features selected")
     plt.ylabel("Cross validation score - F1 (macro)")
-    plt.plot(range(1, len(train_pipeline.named_steps['feature_selector'].grid_scores_) + 1), train_pipeline.named_steps['feature_selector'].grid_scores_)
+    # plt.plot(range(1, len(train_pipeline.named_steps['feature_selector'].grid_scores_) + 1),
+    #          train_pipeline.named_steps['feature_selector'].grid_scores_)
     plt.show()
-    
+
     # apply trained pipeline to the test data without oversampling
     test_pipeline = Pipeline([
         ('feature_selector', train_pipeline.named_steps['feature_selector']),
@@ -381,27 +384,71 @@ for clf_name, clf in classifiers.items():
     ])
     y_pred = test_pipeline.predict(x_test)
 
-    print(classification_report(y_test, y_pred))
+    print(f"Classifier: {clf_name}")
+    print(f"Selected features: {list(x_train.columns[train_pipeline.named_steps['feature_selector'].get_support()])}")
+    print(f"Number of features selected: {train_pipeline.named_steps['feature_selector'].n_features_}")
+    # print(
+    #     f"Cross-validation score: {train_pipeline.named_steps['feature_selector'].grid_scores_[train_pipeline.named_steps['feature_selector'].n_features_ - 1]}")
+    # # show the metrics of the train model
+    y_pred = train_pipeline.predict(x_train)
+    print(classification_report(y_train, y_pred))
     print('---------------------------------')
-    print(confusion_matrix(y_test, y_pred))
-    y_pred_proba = test_pipeline.predict_proba(x_test)[:, 1]
-    print(f"ROC-AUC score: {roc_auc_score(y_test, y_pred_proba)}")
-    #plot roc curve
-    fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
+
+    y_pred_proba_train = train_pipeline.predict_proba(x_train)
+    print(f"ROC AUC score: {roc_auc_score(y_train, y_pred_proba_train[:, 1])}")
+    print('---------------------------------')
+
     plt.figure()
-    plt.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % roc_auc_score(y_test, y_pred_proba))
-    plt.plot([0, 1], [0, 1], 'k--')
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.legend(loc="lower right")
+    plt.xlabel("Number of features selected")
+    plt.ylabel("Cross validation score")
+    # plt.plot(range(1, len(train_pipeline.named_steps['feature_selector'].grid_scores_) + 1),
+    #          train_pipeline.named_steps['feature_selector'].grid_scores_)
     plt.show()
 
-    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel() 
+    # apply trained pipeline to the test data without oversampling
+    test_pipeline = Pipeline([
+        ('feature_selector', train_pipeline.named_steps['feature_selector']),
+        ('classifier', train_pipeline.named_steps['classifier']),
+
+        # ('dimension_reducer', train_pipeline.named_steps['dimension_reducer'])
+
+    ])
+    y_pred = test_pipeline.predict(x_test)
+
+    print(classification_report(y_test, y_pred))
+    print('---------------------------------')
+    # print the confusion matrix in to a tabel form
+    print(pd.DataFrame(confusion_matrix(y_test, y_pred), columns=['Predicted No Disease', 'Predicted Disease'],
+                       index=['Actual No Disease', 'Actual Disease']))
+    print('---------------------------------')
+    y_pred_proba = test_pipeline.predict_proba(x_test)[:, 1]
+    print(f"ROC-AUC score: {roc_auc_score(y_test, y_pred_proba)}")
+    print('---------------------------------')
+    # plot the precision_recall_curve
+    precision, recall, thresholds = precision_recall_curve(y_test, y_pred_proba)
+    plt.figure()
+    plt.plot(recall, precision)
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title(f'Precision-Recall curve of {clf_name}')
+    plt.show()
+    print('---------------------------------')
+    fpr_train, tpr_train, thresholds_train = roc_curve(y_train, y_pred_proba_train[:, 1])
+    fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
+    plt.figure()
+    plt.plot(fpr_train, tpr_train,
+             label='Train ROC curve (area = %0.2f)' % roc_auc_score(y_train, y_pred_proba_train[:, 1]))
+    plt.plot(fpr, tpr, label='Test ROC curve (area = %0.2f)' % roc_auc_score(y_test, y_pred_proba))
+    plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title(f'ROC curve of {clf_name}')
+    plt.legend()
+    plt.show()
+    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
     balanced_accuracy = (tp / (tp + fn) + tn / (tn + fp)) / 2
     print(f"Balanced accuracy: {balanced_accuracy}")
     print('---------------------------------')
-    # get the marco f1 score
-    print(f"Macro F1 score: {f1_score(y_test, y_pred, average='macro')}") 
 
 #%%
 # # MLP classifier
