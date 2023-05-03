@@ -355,7 +355,6 @@ classifiers = {
     'Decision Tree': DecisionTreeClassifier(),
     'Random Forest': RandomForestClassifier(),
     'Logistic Regression': LogisticRegression()
-    # # 'SVC': SVC(kernel='linear'),
     # "XGBoost": xgb.XGBClassifier(),
     # "AdaBoost": AdaBoostClassifier()
 }
@@ -364,7 +363,7 @@ for clf_name, clf in classifiers.items():
     # train pipeline with oversampling
     train_pipeline = Pipeline([
         ('sampler', RandomUnderSampler()),
-        ('feature_selector', RFECV(estimator=clf, step=1, cv=StratifiedKFold(n_splits=5), scoring='f1')),
+        ('feature_selector', RFECV(estimator=clf, step=1, cv=StratifiedKFold(n_splits=10), scoring='f1')),
         ('classifier', clf)
     ])
     train_pipeline.fit(x_train, y_train)
@@ -372,28 +371,17 @@ for clf_name, clf in classifiers.items():
     print(f"Classifier: {clf_name}")
     print(f"Selected features: {list(x_train.columns[train_pipeline.named_steps['feature_selector'].get_support()])}")
     print(f"Number of features selected: {train_pipeline.named_steps['feature_selector'].n_features_}")
-    # print(
-    #     f"Cross-validation score: {train_pipeline.named_steps['feature_selector'].grid_scores_[train_pipeline.named_steps['feature_selector'].n_features_ - 1]}")
+    print(
+         f"Cross-validation score: {train_pipeline.named_steps['feature_selector'].grid_scores_[train_pipeline.named_steps['feature_selector'].n_features_ - 1]}")
     plt.figure()
     plt.xlabel("Number of features selected")
     plt.ylabel("Cross validation score - F1 (macro)")
-    # plt.plot(range(1, len(train_pipeline.named_steps['feature_selector'].grid_scores_) + 1),
-    #          train_pipeline.named_steps['feature_selector'].grid_scores_)
+    plt.plot(range(1, len(train_pipeline.named_steps['feature_selector'].grid_scores_) + 1),
+              train_pipeline.named_steps['feature_selector'].grid_scores_)
     plt.show()
 
-    # apply trained pipeline to the test data without oversampling
-    test_pipeline = Pipeline([
-        ('feature_selector', train_pipeline.named_steps['feature_selector']),
-        ('classifier', train_pipeline.named_steps['classifier'])
-    ])
-    y_pred = test_pipeline.predict(x_test)
 
-    print(f"Classifier: {clf_name}")
-    print(f"Selected features: {list(x_train.columns[train_pipeline.named_steps['feature_selector'].get_support()])}")
-    print(f"Number of features selected: {train_pipeline.named_steps['feature_selector'].n_features_}")
-    # print(
-    #     f"Cross-validation score: {train_pipeline.named_steps['feature_selector'].grid_scores_[train_pipeline.named_steps['feature_selector'].n_features_ - 1]}")
-    # # show the metrics of the train model
+    # show the metrics of the train model
     y_pred = train_pipeline.predict(x_train)
     print(classification_report(y_train, y_pred))
     print('---------------------------------')
@@ -402,19 +390,11 @@ for clf_name, clf in classifiers.items():
     print(f"ROC AUC score: {roc_auc_score(y_train, y_pred_proba_train[:, 1])}")
     print('---------------------------------')
 
-    plt.figure()
-    plt.xlabel("Number of features selected")
-    plt.ylabel("Cross validation score")
-    # plt.plot(range(1, len(train_pipeline.named_steps['feature_selector'].grid_scores_) + 1),
-    #          train_pipeline.named_steps['feature_selector'].grid_scores_)
-    plt.show()
 
     # apply trained pipeline to the test data without oversampling
     test_pipeline = Pipeline([
         ('feature_selector', train_pipeline.named_steps['feature_selector']),
         ('classifier', train_pipeline.named_steps['classifier']),
-
-        # ('dimension_reducer', train_pipeline.named_steps['dimension_reducer'])
 
     ])
     y_pred = test_pipeline.predict(x_test)
@@ -429,11 +409,14 @@ for clf_name, clf in classifiers.items():
     print(f"ROC-AUC score: {roc_auc_score(y_test, y_pred_proba)}")
     print('---------------------------------')
     # plot the precision_recall_curve
+   # draw the no skill line of the precision_recall_curve
     precision, recall, thresholds = precision_recall_curve(y_test, y_pred_proba)
-    plt.figure()
+    plt.figure()    
     plt.plot(recall, precision)
     plt.xlabel('Recall')
     plt.ylabel('Precision')
+    baseline = len(y_test[(y_test['HeartDisease']==1)])/len(y_test)
+    plt.plot([0, 1],[baseline,baseline], linestyle='--')
     plt.title(f'Precision-Recall curve of {clf_name}')
     plt.show()
     print('---------------------------------')
@@ -454,72 +437,7 @@ for clf_name, clf in classifiers.items():
     print(f"Balanced accuracy: {balanced_accuracy}")
     print('---------------------------------')
 
-#%%
-# # MLP classifier
-# from sklearn.model_selection import GridSearchCV
-#
-# # Define your MLPClassifier with the default hyperparameters
-# clf = MLPClassifier(random_state=42)
-#
-# # Define the parameter grid to search over
-# param_grid = {
-#     'classifier__hidden_layer_sizes': [(100,), (100, 50), (200, 100, 50)],
-#     'classifier__activation': ['logistic', 'tanh', 'relu'],
-#     'classifier__solver': ['sgd', 'adam'],
-#     'classifier__alpha': [0.0001, 0.001, 0.01]
-# }
-#
-# # Define the pipeline that includes oversampling using RandomOverSampler
-# pipeline = Pipeline([
-#     ('sampler', RandomOverSampler()),
-#     ('classifier', clf)
-# ])
-#
-# # Use GridSearchCV to search over the parameter grid
-# cv = StratifiedKFold(n_splits=10)
-# grid = GridSearchCV(pipeline, param_grid, cv=cv, scoring='f1', verbose=1)
-# grid.fit(x_train,y_train.to_numpy().flatten())
-#
-# # Print the best parameters and the corresponding score
-# print("Best parameters: ", grid.best_params_)
-# print("Best score: ", grid.best_score_)
-#
-# # train the model with the best parameters
-# best_pipeline = Pipeline([
-#     ('sampler', RandomOverSampler()),
-#     ('classifier', MLPClassifier(random_state=42, **grid.best_params_))
-# ])
-# best_pipeline.fit(x_train, y_train)
-#
-# # apply trained pipeline to the test data
-# # without oversampling
-# test_pipeline = Pipeline([
-#     ('classifier', best_pipeline.named_steps['classifier'])
-# ])
-# y_pred = test_pipeline.predict(x_test)
-#
-# print(classification_report(y_test, y_pred))
-# print('---------------------------------')
-# print(confusion_matrix(y_test, y_pred))
-# y_pred_proba = test_pipeline.predict_proba(x_test)[:, 1]
-# print(f"ROC-AUC score: {roc_auc_score(y_test, y_pred_proba)}")
-#     #plot roc curve
-# fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
-# plt.figure()
-# plt.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % roc_auc_score(y_test, y_pred_proba))
-# plt.plot([0, 1], [0, 1], 'k--')
-# plt.xlabel('False Positive Rate')
-# plt.ylabel('True Positive Rate')
-# plt.legend(loc="lower right")
-# plt.show()
-#
-# tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
-# balanced_accuracy = (tp / (tp + fn) + tn / (tn + fp)) / 2
-# print(f"Balanced accuracy: {balanced_accuracy}")
-# print('---------------------------------')
-# # get the marco f1 score
-# print(f"Macro F1 score: {f1_score(y_test, y_pred, average='macro')}")
-# %%
+  
 # Trying MLP by keras
 x_test,x_val,y_test,y_val = train_test_split(x_test,y_test,test_size=0.5,random_state=42)
 print(x_test.shape)
