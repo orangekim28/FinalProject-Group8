@@ -355,7 +355,6 @@ classifiers = {
     'Decision Tree': DecisionTreeClassifier(),
     'Random Forest': RandomForestClassifier(),
     'Logistic Regression': LogisticRegression()
-    # # 'SVC': SVC(kernel='linear'),
     # "XGBoost": xgb.XGBClassifier(),
     # "AdaBoost": AdaBoostClassifier()
 }
@@ -364,7 +363,7 @@ for clf_name, clf in classifiers.items():
     # train pipeline with oversampling
     train_pipeline = Pipeline([
         ('sampler', RandomUnderSampler()),
-        ('feature_selector', RFECV(estimator=clf, step=1, cv=StratifiedKFold(n_splits=5), scoring='f1')),
+        ('feature_selector', RFECV(estimator=clf, step=1, cv=StratifiedKFold(n_splits=10), scoring='f1')),
         ('classifier', clf)
     ])
     train_pipeline.fit(x_train, y_train)
@@ -372,28 +371,17 @@ for clf_name, clf in classifiers.items():
     print(f"Classifier: {clf_name}")
     print(f"Selected features: {list(x_train.columns[train_pipeline.named_steps['feature_selector'].get_support()])}")
     print(f"Number of features selected: {train_pipeline.named_steps['feature_selector'].n_features_}")
-    # print(
-    #     f"Cross-validation score: {train_pipeline.named_steps['feature_selector'].grid_scores_[train_pipeline.named_steps['feature_selector'].n_features_ - 1]}")
+    print(
+         f"Cross-validation score: {train_pipeline.named_steps['feature_selector'].grid_scores_[train_pipeline.named_steps['feature_selector'].n_features_ - 1]}")
     plt.figure()
     plt.xlabel("Number of features selected")
     plt.ylabel("Cross validation score - F1 (macro)")
-    # plt.plot(range(1, len(train_pipeline.named_steps['feature_selector'].grid_scores_) + 1),
-    #          train_pipeline.named_steps['feature_selector'].grid_scores_)
+    plt.plot(range(1, len(train_pipeline.named_steps['feature_selector'].grid_scores_) + 1),
+              train_pipeline.named_steps['feature_selector'].grid_scores_)
     plt.show()
 
-    # apply trained pipeline to the test data without oversampling
-    test_pipeline = Pipeline([
-        ('feature_selector', train_pipeline.named_steps['feature_selector']),
-        ('classifier', train_pipeline.named_steps['classifier'])
-    ])
-    y_pred = test_pipeline.predict(x_test)
 
-    print(f"Classifier: {clf_name}")
-    print(f"Selected features: {list(x_train.columns[train_pipeline.named_steps['feature_selector'].get_support()])}")
-    print(f"Number of features selected: {train_pipeline.named_steps['feature_selector'].n_features_}")
-    # print(
-    #     f"Cross-validation score: {train_pipeline.named_steps['feature_selector'].grid_scores_[train_pipeline.named_steps['feature_selector'].n_features_ - 1]}")
-    # # show the metrics of the train model
+    # show the metrics of the train model
     y_pred = train_pipeline.predict(x_train)
     print(classification_report(y_train, y_pred))
     print('---------------------------------')
@@ -402,12 +390,6 @@ for clf_name, clf in classifiers.items():
     print(f"ROC AUC score: {roc_auc_score(y_train, y_pred_proba_train[:, 1])}")
     print('---------------------------------')
 
-    plt.figure()
-    plt.xlabel("Number of features selected")
-    plt.ylabel("Cross validation score")
-    # plt.plot(range(1, len(train_pipeline.named_steps['feature_selector'].grid_scores_) + 1),
-    #          train_pipeline.named_steps['feature_selector'].grid_scores_)
-    plt.show()
 
     # apply trained pipeline to the test data without oversampling
     test_pipeline = Pipeline([
@@ -429,11 +411,14 @@ for clf_name, clf in classifiers.items():
     print(f"ROC-AUC score: {roc_auc_score(y_test, y_pred_proba)}")
     print('---------------------------------')
     # plot the precision_recall_curve
+   # draw the no skill line of the precision_recall_curve
     precision, recall, thresholds = precision_recall_curve(y_test, y_pred_proba)
-    plt.figure()
+    plt.figure()    
     plt.plot(recall, precision)
     plt.xlabel('Recall')
     plt.ylabel('Precision')
+    baseline = len(y_test[(y_test['HeartDisease']==1)])/len(y_test)
+    plt.plot([0, 1],[baseline,baseline], linestyle='--')
     plt.title(f'Precision-Recall curve of {clf_name}')
     plt.show()
     print('---------------------------------')
